@@ -17,26 +17,18 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-
   ar_version = ENV['OBJECTID_COLUMNS_AR_TEST_VERSION']
   ar_version = ar_version.strip if ar_version
 
-  version_spec = case ar_version
-  when nil then [ ">= 3.0", "<= 4.99.99" ]
-  when 'master' then nil
-  else [ "=#{ar_version}" ]
-  end
-
-  if version_spec
-    spec.add_dependency("activerecord", *version_spec)
-    spec.add_dependency("activesupport", *version_spec)
-  end
+  spec.add_dependency("activerecord", ">= 5.0")
+  spec.add_dependency("activesupport", ">= 5.0")
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec", "~> 2.14"
   spec.add_development_dependency "moped", "~> 1.5" unless RUBY_VERSION =~ /^1\.8\./
   spec.add_development_dependency "bson", "~> 1.9"
+  spec.add_development_dependency "composite_primary_keys"
 
   require File.expand_path(File.join(File.dirname(__FILE__), 'spec', 'objectid_columns', 'helpers', 'database_helper'))
   database_gem_name = ObjectidColumns::Helpers::DatabaseHelper.maybe_database_gem_name
@@ -61,13 +53,4 @@ Gem::Specification.new do |spec|
   # In these cases, we simply don't load or test against composite_primary_keys; our code is good, but the interactions
   # between CPK and the rest of the system make it impossible to run those tests. There is corresponding code in our
   # +basic_system_spec+ to exclude those combinations.
-  cpk_allowed = true
-  cpk_allowed = false if database_gem_name =~ /(pg|postgres)/i && RUBY_VERSION =~ /^(1\.9)|(2\.)/ && ar_version && ar_version =~ /^4\.(0|1)\./
-  cpk_allowed = false if defined?(RUBY_ENGINE) && (RUBY_ENGINE == 'jruby') && ar_version && ar_version =~ /^3\.0\./
-  cpk_allowed = false if defined?(RUBY_ENGINE) && (RUBY_ENGINE == 'jruby') && ar_version && ar_version =~ /^3\.1\./ && database_gem_name =~ /(pg|postgres)/
-  cpk_allowed = false if defined?(RUBY_ENGINE) && (RUBY_ENGINE == 'jruby') && ar_version && ar_version =~ /^4\.1\./ && database_gem_name =~ /(sqlite)/
-
-  if cpk_allowed
-    spec.add_development_dependency "composite_primary_keys"
-  end
 end
